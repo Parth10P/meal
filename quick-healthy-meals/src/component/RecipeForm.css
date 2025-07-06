@@ -225,6 +225,41 @@
   transform: scale(1.1);
 }
 
+/* Button group */
+.button-group {
+  display: flex;
+  gap: 15px;
+  margin-top: 10px;
+}
+
+/* AI button */
+.ai-btn {
+  padding: 15px 30px;
+  border: none;
+  border-radius: 12px;
+  background: linear-gradient(45deg, #667eea, #764ba2);
+  color: white;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  flex: 1;
+}
+
+.ai-btn:hover:not(:disabled) {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+}
+
+.ai-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
 /* Submit button */
 .submit-btn {
   padding: 15px 30px;
@@ -236,9 +271,9 @@
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s ease;
-  margin-top: 10px;
   text-transform: uppercase;
   letter-spacing: 1px;
+  flex: 1;
 }
 
 .submit-btn:hover:not(:disabled) {
@@ -269,5 +304,10 @@
   
   .add-btn {
     min-width: auto;
+  }
+
+  .button-group {
+    flex-direction: column;
+    gap: 10px;
   }
 } 

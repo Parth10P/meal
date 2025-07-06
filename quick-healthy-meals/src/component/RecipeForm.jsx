@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import './RecipeForm.css'
+import AIService from '../services/aiService'
 
 const RecipeForm = ({ onAddRecipe, darkMode }) => {
   const [recipeName, setRecipeName] = useState('')
@@ -8,6 +9,7 @@ const RecipeForm = ({ onAddRecipe, darkMode }) => {
   const [cookingTime, setCookingTime] = useState('15')
   const [isHealthy, setIsHealthy] = useState(true)
   const [instructions, setInstructions] = useState('')
+  const [isGenerating, setIsGenerating] = useState(false)
 
   const timeOptions = [
     { value: '5', label: '5 minutes' },
@@ -66,6 +68,46 @@ const RecipeForm = ({ onAddRecipe, darkMode }) => {
   const handleKeyPress = (e) => {
     if (e.key === 'Enter') {
       addIngredient()
+    }
+  }
+
+  const generateAIRecipe = async () => {
+    if (ingredients.length === 0) {
+      alert('Please add at least one ingredient to generate an AI recipe!')
+      return
+    }
+
+    setIsGenerating(true)
+    try {
+      const aiService = new AIService()
+      const ingredientTexts = ingredients.map(ing => ing.text)
+      const aiRecipe = await aiService.generateRecipe(ingredientTexts, parseInt(cookingTime), isHealthy)
+      
+      // Auto-fill the form with AI generated recipe
+      setRecipeName(aiRecipe.name || 'AI Generated Recipe')
+      setInstructions(aiRecipe.instructions || '')
+      
+      // Add additional ingredients if any
+      if (aiRecipe.additionalIngredients) {
+        const additionalIngs = aiRecipe.additionalIngredients.split(',').map(ing => ing.trim())
+        const newIngredients = additionalIngs.map(ing => ({
+          id: Date.now() + Math.random(),
+          text: ing,
+          completed: false
+        }))
+        setIngredients(prev => [...prev, ...newIngredients])
+      }
+      
+      // Show tips if available
+      if (aiRecipe.tips) {
+        alert(`Recipe Tips: ${aiRecipe.tips}`)
+      }
+      
+    } catch (error) {
+      console.error('AI Recipe generation failed:', error)
+      alert('Failed to generate AI recipe. Please try again.')
+    } finally {
+      setIsGenerating(false)
     }
   }
 
@@ -185,13 +227,24 @@ const RecipeForm = ({ onAddRecipe, darkMode }) => {
           />
         </div>
 
-        <button
-          type="submit"
-          className="submit-btn"
-          disabled={!recipeName.trim() || ingredients.length === 0}
-        >
-          Add Recipe
-        </button>
+        <div className="button-group">
+          <button
+            type="button"
+            onClick={generateAIRecipe}
+            className="ai-btn"
+            disabled={ingredients.length === 0 || isGenerating}
+          >
+            {isGenerating ? '🤖 Generating...' : '🤖 Generate AI Recipe'}
+          </button>
+          
+          <button
+            type="submit"
+            className="submit-btn"
+            disabled={!recipeName.trim() || ingredients.length === 0}
+          >
+            Add Recipe
+          </button>
+        </div>
       </form>
     </div>
   )
